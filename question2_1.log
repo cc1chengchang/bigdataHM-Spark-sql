@@ -1,0 +1,292 @@
+spark-sql> select a.job from (select name, job, age from t_customer where 1="1" and age > 5) a where a.age<30;
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Substitution has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Disable Hints has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Hints has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Simple Sanity Check has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Keep Legacy Outputs has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.analysis.Analyzer$ResolveRelations ===
+ 'Project ['a.job]                                            'Project ['a.job]
+ +- 'Filter ('a.age < 30)                                     +- 'Filter ('a.age < 30)
+    +- 'SubqueryAlias a                                          +- 'SubqueryAlias a
+       +- 'Project ['name, 'job, 'age]                              +- 'Project ['name, 'job, 'age]
+          +- 'Filter ((1 = 1) AND ('age > 5))                          +- 'Filter ((1 = 1) AND ('age > 5))
+!            +- 'UnresolvedRelation [t_customer], [], false               +- 'SubqueryAlias spark_catalog.chchang.t_customer
+!                                                                            +- 'UnresolvedCatalogRelation `chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, [], false
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.execution.datasources.FindDataSourceTable ===
+ 'Project ['a.job]                                                                                                                    'Project ['a.job]
+ +- 'Filter ('a.age < 30)                                                                                                             +- 'Filter ('a.age < 30)
+    +- 'SubqueryAlias a                                                                                                                  +- 'SubqueryAlias a
+       +- 'Project ['name, 'job, 'age]                                                                                                      +- 'Project ['name, 'job, 'age]
+          +- 'Filter ((1 = 1) AND ('age > 5))                                                                                                  +- 'Filter ((1 = 1) AND ('age > 5))
+!            +- 'SubqueryAlias spark_catalog.chchang.t_customer                                                                                   +- SubqueryAlias spark_catalog.chchang.t_customer
+!               +- 'UnresolvedCatalogRelation `chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, [], false                  +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.analysis.Analyzer$ResolveReferences ===
+ 'Project ['a.job]                                                                                                                                                            'Project ['a.job]
+ +- 'Filter ('a.age < 30)                                                                                                                                                     +- 'Filter ('a.age < 30)
+    +- 'SubqueryAlias a                                                                                                                                                          +- 'SubqueryAlias a
+       +- 'Project ['name, 'job, 'age]                                                                                                                                              +- 'Project ['name, 'job, 'age]
+!         +- 'Filter ((1 = 1) AND ('age > 5))                                                                                                                                          +- 'Filter ((1 = 1) AND (age#49 > 5))
+             +- SubqueryAlias spark_catalog.chchang.t_customer                                                                                                                            +- SubqueryAlias spark_catalog.chchang.t_customer
+                +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]                  +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.analysis.TypeCoercionBase$CombinedTypeCoercionRule ===
+ 'Project ['a.job]                                                                                                                                                            'Project ['a.job]
+ +- 'Filter ('a.age < 30)                                                                                                                                                     +- 'Filter ('a.age < 30)
+    +- 'SubqueryAlias a                                                                                                                                                          +- 'SubqueryAlias a
+       +- 'Project ['name, 'job, 'age]                                                                                                                                              +- 'Project ['name, 'job, 'age]
+!         +- 'Filter ((1 = 1) AND (age#49 > 5))                                                                                                                                        +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+             +- SubqueryAlias spark_catalog.chchang.t_customer                                                                                                                            +- SubqueryAlias spark_catalog.chchang.t_customer
+                +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]                  +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.analysis.Analyzer$ResolveReferences ===
+!'Project ['a.job]                                                                                                                                                            Project [job#50]
+!+- 'Filter ('a.age < 30)                                                                                                                                                     +- Filter (age#49 < 30)
+!   +- 'SubqueryAlias a                                                                                                                                                          +- SubqueryAlias a
+!      +- 'Project ['name, 'job, 'age]                                                                                                                                              +- Project [name#48, job#50, age#49]
+          +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))                                                                                                                            +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+             +- SubqueryAlias spark_catalog.chchang.t_customer                                                                                                                            +- SubqueryAlias spark_catalog.chchang.t_customer
+                +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]                  +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.analysis.ResolveTimeZone ===
+ Project [job#50]                                                                                                                                                             Project [job#50]
+ +- Filter (age#49 < 30)                                                                                                                                                      +- Filter (age#49 < 30)
+    +- SubqueryAlias a                                                                                                                                                           +- SubqueryAlias a
+       +- Project [name#48, job#50, age#49]                                                                                                                                         +- Project [name#48, job#50, age#49]
+          +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))                                                                                                                            +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+             +- SubqueryAlias spark_catalog.chchang.t_customer                                                                                                                            +- SubqueryAlias spark_catalog.chchang.t_customer
+                +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]                  +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Result of Batch Resolution ===
+!'Project ['a.job]                                            Project [job#50]
+!+- 'Filter ('a.age < 30)                                     +- Filter (age#49 < 30)
+!   +- 'SubqueryAlias a                                          +- SubqueryAlias a
+!      +- 'Project ['name, 'job, 'age]                              +- Project [name#48, job#50, age#49]
+!         +- 'Filter ((1 = 1) AND ('age > 5))                          +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+!            +- 'UnresolvedRelation [t_customer], [], false               +- SubqueryAlias spark_catalog.chchang.t_customer
+!                                                                            +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Remove TempResolvedColumn has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Apply Char Padding has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.hive.DetermineTableStats ===
+ Project [job#50]                                                                                                                                                             Project [job#50]
+ +- Filter (age#49 < 30)                                                                                                                                                      +- Filter (age#49 < 30)
+    +- SubqueryAlias a                                                                                                                                                           +- SubqueryAlias a
+       +- Project [name#48, job#50, age#49]                                                                                                                                         +- Project [name#48, job#50, age#49]
+          +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))                                                                                                                            +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+             +- SubqueryAlias spark_catalog.chchang.t_customer                                                                                                                            +- SubqueryAlias spark_catalog.chchang.t_customer
+                +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]                  +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Result of Batch Post-Hoc Resolution ===
+ Project [job#50]                                                                                                                                                             Project [job#50]
+ +- Filter (age#49 < 30)                                                                                                                                                      +- Filter (age#49 < 30)
+    +- SubqueryAlias a                                                                                                                                                           +- SubqueryAlias a
+       +- Project [name#48, job#50, age#49]                                                                                                                                         +- Project [name#48, job#50, age#49]
+          +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))                                                                                                                            +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+             +- SubqueryAlias spark_catalog.chchang.t_customer                                                                                                                            +- SubqueryAlias spark_catalog.chchang.t_customer
+                +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]                  +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Remove Unresolved Hints has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Nondeterministic has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch UDF has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch UpdateNullability has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Subquery has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Cleanup has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch HandleAnalysisOnlyCommand has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Metrics of Executed Rules ===
+Total number of runs: 241
+Total time: 0.066764613 seconds
+Total number of effective runs: 7
+Total time of effective runs: 0.056809607 seconds
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.optimizer.Optimizer$FinishAnalysis ===
+ Project [job#50]                                                                                                                                                             Project [job#50]
+ +- Filter (age#49 < 30)                                                                                                                                                      +- Filter (age#49 < 30)
+!   +- SubqueryAlias a                                                                                                                                                           +- Project [name#48, job#50, age#49]
+!      +- Project [name#48, job#50, age#49]                                                                                                                                         +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+!         +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))                                                                                                                            +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+!            +- SubqueryAlias spark_catalog.chchang.t_customer
+!               +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Result of Batch Finish Analysis ===
+ Project [job#50]                                                                                                                                                             Project [job#50]
+ +- Filter (age#49 < 30)                                                                                                                                                      +- Filter (age#49 < 30)
+!   +- SubqueryAlias a                                                                                                                                                           +- Project [name#48, job#50, age#49]
+!      +- Project [name#48, job#50, age#49]                                                                                                                                         +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+!         +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))                                                                                                                            +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+!            +- SubqueryAlias spark_catalog.chchang.t_customer
+!               +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Eliminate Distinct has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Inline CTE has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Union has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch OptimizeLimitZero has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch LocalRelation early has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Pullup Correlated Expressions has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Subquery has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Replace Operators has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Aggregate has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.optimizer.PushDownPredicates ===
+ Project [job#50]                                                                                                                                                       Project [job#50]
+!+- Filter (age#49 < 30)                                                                                                                                                +- Project [name#48, job#50, age#49]
+!   +- Project [name#48, job#50, age#49]                                                                                                                                   +- Filter (((1 = cast(1 as int)) AND (age#49 > 5)) AND (age#49 < 30))
+!      +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))                                                                                                                      +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+!         +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.optimizer.ColumnPruning ===
+ Project [job#50]                                                                                                                                                    Project [job#50]
+!+- Project [name#48, job#50, age#49]                                                                                                                                +- Project [job#50]
+    +- Filter (((1 = cast(1 as int)) AND (age#49 > 5)) AND (age#49 < 30))                                                                                               +- Filter (((1 = cast(1 as int)) AND (age#49 > 5)) AND (age#49 < 30))
+       +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]         +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.optimizer.CollapseProject ===
+ Project [job#50]                                                                                                                                                    Project [job#50]
+!+- Project [job#50]                                                                                                                                                 +- Filter (((1 = cast(1 as int)) AND (age#49 > 5)) AND (age#49 < 30))
+!   +- Filter (((1 = cast(1 as int)) AND (age#49 > 5)) AND (age#49 < 30))                                                                                               +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+!      +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.optimizer.ConstantFolding ===
+ Project [job#50]                                                                                                                                                 Project [job#50]
+!+- Filter (((1 = cast(1 as int)) AND (age#49 > 5)) AND (age#49 < 30))                                                                                            +- Filter ((true AND (age#49 > 5)) AND (age#49 < 30))
+    +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]      +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.optimizer.BooleanSimplification ===
+ Project [job#50]                                                                                                                                                 Project [job#50]
+!+- Filter ((true AND (age#49 > 5)) AND (age#49 < 30))                                                                                                            +- Filter ((age#49 > 5) AND (age#49 < 30))
+    +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]      +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Result of Batch Operator Optimization before Inferring Filters ===
+ Project [job#50]                                                                                                                                                       Project [job#50]
+!+- Filter (age#49 < 30)                                                                                                                                                +- Filter ((age#49 > 5) AND (age#49 < 30))
+!   +- Project [name#48, job#50, age#49]                                                                                                                                   +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+!      +- Filter ((1 = cast(1 as int)) AND (age#49 > 5))
+!         +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.catalyst.optimizer.InferFiltersFromConstraints ===
+ Project [job#50]                                                                                                                                                 Project [job#50]
+!+- Filter ((age#49 > 5) AND (age#49 < 30))                                                                                                                       +- Filter (isnotnull(age#49) AND ((age#49 > 5) AND (age#49 < 30)))
+    +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]      +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Result of Batch Infer Filters ===
+ Project [job#50]                                                                                                                                                 Project [job#50]
+!+- Filter ((age#49 > 5) AND (age#49 < 30))                                                                                                                       +- Filter (isnotnull(age#49) AND ((age#49 > 5) AND (age#49 < 30)))
+    +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]      +- HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Operator Optimization after Inferring Filters has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Push extra predicate through join has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Clean Up Temporary CTE Info has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Pre CBO Rules has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Early Filter and Projection Push-Down has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Update CTE Relation Stats has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Join Reorder has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Eliminate Sorts has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Decimal Optimizations has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Distinct Aggregate Rewrite has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Object Expressions Optimization has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch LocalRelation has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Optimize One Row Plan has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Check Cartesian Products has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch RewriteSubquery has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch NormalizeFloatingNumbers has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch ReplaceUpdateFieldsExpression has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Optimize Metadata Only Query has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch PartitionPruning has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch InjectRuntimeFilter has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch MergeScalarSubqueries has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Pushdown Filters from PartitionPruning has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Cleanup filters that cannot be pushed down has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Extract Python UDFs has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch User Provided Optimizers has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch Replace CTE with Repartition has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Metrics of Executed Rules ===
+Total number of runs: 227
+Total time: 0.006469909 seconds
+Total number of effective runs: 7
+Total time of effective runs: 0.002365208 seconds
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Applying Rule org.apache.spark.sql.execution.CollapseCodegenStages ===
+!Project [job#50]                                                                                                                                                                                                *(1) Project [job#50]
+!+- Filter ((isnotnull(age#49) AND (age#49 > 5)) AND (age#49 < 30))                                                                                                                                              +- *(1) Filter ((isnotnull(age#49) AND (age#49 > 5)) AND (age#49 < 30))
+    +- Scan hive chchang.t_customer [age#49, job#50], HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]      +- Scan hive chchang.t_customer [age#49, job#50], HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Result of Batch Preparations ===
+!Project [job#50]                                                                                                                                                                                                *(1) Project [job#50]
+!+- Filter ((isnotnull(age#49) AND (age#49 > 5)) AND (age#49 < 30))                                                                                                                                              +- *(1) Filter ((isnotnull(age#49) AND (age#49 > 5)) AND (age#49 < 30))
+    +- Scan hive chchang.t_customer [age#49, job#50], HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]      +- Scan hive chchang.t_customer [age#49, job#50], HiveTableRelation [`chchang`.`t_customer`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, Data Cols: [name#48, age#49, job#50], Partition Cols: []]
+
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch CleanExpressions has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Metrics of Executed Rules ===
+Total number of runs: 1
+Total time: 4.963E-6 seconds
+Total number of effective runs: 0
+Total time of effective runs: 0.0 seconds
+
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch CleanExpressions has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Metrics of Executed Rules ===
+Total number of runs: 1
+Total time: 3.675E-6 seconds
+Total number of effective runs: 0
+Total time of effective runs: 0.0 seconds
+
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch CleanExpressions has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Metrics of Executed Rules ===
+Total number of runs: 1
+Total time: 1.039E-5 seconds
+Total number of effective runs: 0
+Total time of effective runs: 0.0 seconds
+
+22/05/08 23:20:09 WARN PlanChangeLogger: Batch CleanExpressions has no effect.
+22/05/08 23:20:09 WARN PlanChangeLogger:
+=== Metrics of Executed Rules ===
+Total number of runs: 1
+Total time: 3.228E-6 seconds
+Total number of effective runs: 0
+Total time of effective runs: 0.0 seconds
+
+22/05/08 23:20:10 WARN PlanChangeLogger: Batch CleanExpressions has no effect.
+22/05/08 23:20:10 WARN PlanChangeLogger:
+=== Metrics of Executed Rules ===
+Total number of runs: 1
+Total time: 4.485E-6 seconds
+Total number of effective runs: 0
+Total time of effective runs: 0.0 seconds
+
+22/05/08 23:20:10 WARN PlanChangeLogger: Batch CleanExpressions has no effect.
+22/05/08 23:20:10 WARN PlanChangeLogger:
+=== Metrics of Executed Rules ===
+Total number of runs: 1
+Total time: 2.417E-6 seconds
+Total number of effective runs: 0
+Total time of effective runs: 0.0 seconds
+
+Developer
+Developer
+Time taken: 0.37 seconds, Fetched 2 row(s)
+spark-sql>

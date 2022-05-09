@@ -1,0 +1,56 @@
+diff --git a/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseParser.g4 b/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseParser.g4
+index 7eace05b6b..6942979588 100644
+--- a/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseParser.g4
++++ b/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseParser.g4
+@@ -67,6 +67,7 @@ singleTableSchema
+ 
+ statement
+     : query                                                            #statementDefault
++    | SHOW VERSION                                                     #showVersion
+     | ctes? dmlStatementNoWith                                         #dmlStatement
+     | USE multipartIdentifier                                          #use
+     | USE namespace multipartIdentifier                                #useNamespace
+@@ -1068,6 +1069,7 @@ alterColumnAction
+ ansiNonReserved
+ //--ANSI-NON-RESERVED-START
+     : ADD
++    | VERSION
+     | AFTER
+     | ALTER
+     | ANALYZE
+@@ -1308,6 +1310,7 @@ strictNonReserved
+ nonReserved
+ //--DEFAULT-NON-RESERVED-START
+     : ADD
++    | VERSION
+     | AFTER
+     | ALL
+     | ALTER
+diff --git a/sql/core/src/main/scala/org/apache/spark/sql/execution/SparkSqlParser.scala b/sql/core/src/main/scala/org/apache/spark/sql/execution/SparkSqlParser.scala
+index 752b371128..b092d8e523 100644
+--- a/sql/core/src/main/scala/org/apache/spark/sql/execution/SparkSqlParser.scala
++++ b/sql/core/src/main/scala/org/apache/spark/sql/execution/SparkSqlParser.scala
+@@ -852,4 +852,9 @@ class SparkSqlAstBuilder extends AstBuilder {
+ 
+     (ctx.LOCAL != null, finalStorage, Some(DDLUtils.HIVE_PROVIDER))
+   }
++  override def visitShowVersion(ctx: ShowVersionContext): LogicalPlan = withOrigin(ctx) {
++
++    ShowVersionCommand()
++
++  }
+ }
+diff --git a/sql/core/src/main/scala/org/apache/spark/sql/execution/command/commands.scala b/sql/core/src/main/scala/org/apache/spark/sql/execution/command/commands.scala
+index c21f330be0..e834b19cc6 100644
+--- a/sql/core/src/main/scala/org/apache/spark/sql/execution/command/commands.scala
++++ b/sql/core/src/main/scala/org/apache/spark/sql/execution/command/commands.scala
+@@ -210,3 +210,9 @@ case class ExternalCommandExecutor(
+     output.map(Row(_))
+   }
+ }
++
++case class ShowVersionCommand() extends LeafRunnableCommand {
++  override def run(sparkSession: SparkSession): Seq[Row] = {
++    Seq(Row(util.Properties.versionNumberString, System.getProperty("java.version")))
++  }
++}
